@@ -175,4 +175,48 @@ public class DialogueManager : MonoBehaviour
 
         OnDialogueEnded?.Invoke();
     }
+
+    public void ShowSingleLine(Speaker speaker, string text, float duration)
+    {
+        if (dialogueActive) return;
+
+        if (dialoguePanel != null) dialoguePanel.SetActive(true);
+
+        bool isMom = speaker == Speaker.Mom;
+        speakerNameText.text = isMom ? momDisplayName : ggDisplayName;
+
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = isMom ? momPortrait : ggPortrait;
+            portraitImage.enabled = true;
+        }
+
+        if (isMom && momAnimator != null)
+        {
+            momAnimator.SetTrigger("ShortTalk");
+        }
+
+        if (typingCoroutine != null)
+            StopCoroutine(typingCoroutine);
+
+        typingCoroutine = StartCoroutine(TypeSingleLineThenHide(text, duration));
+    }
+
+    private IEnumerator TypeSingleLineThenHide(string fullText, float duration)
+    {
+        dialogueText.text = "";
+
+        foreach (char c in fullText)
+        {
+            dialogueText.text += c;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
+        if (portraitImage != null) portraitImage.enabled = false;
+        speakerNameText.text = "";
+        dialogueText.text = "";
+    }
 }

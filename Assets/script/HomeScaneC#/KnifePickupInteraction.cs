@@ -7,12 +7,14 @@ public class KnifePickupInteraction : MonoBehaviour
     [SerializeField] private Animator ggAnimator;
     [SerializeField] private MonoBehaviour firstPersonMovementScript;
     [SerializeField] private GameObject interactPrompt;
-    [SerializeField] private Transform interactionPoint;
     [SerializeField] private MeatHighlight meatHighlight;
+
+    [Header("Точная позиция для анимации взятия ножа")]
+    [SerializeField] private Vector3 targetPosition = new Vector3(18.12924f, -0.020001f, -21.92355f);
+    [SerializeField] private float targetRotationY = 3.335f;
 
     [Header("Настройки")]
     [SerializeField] private KeyCode interactKey = KeyCode.F;
-    [SerializeField] private float moveToPointDuration = 0.3f;
 
     private bool playerInRange = false;
     private bool knifeTaken = false;
@@ -56,11 +58,11 @@ public class KnifePickupInteraction : MonoBehaviour
 
         if (Input.GetKeyDown(interactKey))
         {
-            StartCoroutine(TakeKnifeRoutine());
+            TakeKnife();
         }
     }
 
-    private IEnumerator TakeKnifeRoutine()
+    private void TakeKnife()
     {
         knifeTaken = true;
 
@@ -73,32 +75,13 @@ public class KnifePickupInteraction : MonoBehaviour
         if (firstPersonMovementScript != null)
             firstPersonMovementScript.enabled = false;
 
-        CharacterController cc = null;
-        if (interactionPoint != null && playerTransform != null)
+        if (playerTransform != null)
         {
-            cc = playerTransform.GetComponent<CharacterController>();
+            CharacterController cc = playerTransform.GetComponent<CharacterController>();
             if (cc != null) cc.enabled = false;
 
-            Vector3 startPos = playerTransform.position;
-            Quaternion startRot = playerTransform.rotation;
-
-            Vector3 targetPos = interactionPoint.position;
-            Quaternion targetRot = interactionPoint.rotation;
-
-            float elapsed = 0f;
-            while (elapsed < moveToPointDuration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / moveToPointDuration);
-
-                playerTransform.position = Vector3.Lerp(startPos, targetPos, t);
-                playerTransform.rotation = Quaternion.Slerp(startRot, targetRot, t);
-
-                yield return null;
-            }
-
-            playerTransform.position = targetPos;
-            playerTransform.rotation = targetRot;
+            playerTransform.position = targetPosition;
+            playerTransform.rotation = Quaternion.Euler(0f, targetRotationY, 0f);
 
             if (cc != null) cc.enabled = true;
         }

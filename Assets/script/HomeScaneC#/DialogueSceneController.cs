@@ -7,6 +7,7 @@ public class DialogueSceneController : MonoBehaviour
     [SerializeField] private DialogueCameraLook dialogueCameraLook;
     [SerializeField] private FadeInOnStart fadeController;
     [SerializeField] private Animator ggAnimator;
+    [SerializeField] private MomWalkToLaundry momWalker;
 
     [Header("Что включить после диалога")]
     [SerializeField] private MonoBehaviour firstPersonMovementScript;
@@ -66,12 +67,20 @@ public class DialogueSceneController : MonoBehaviour
 
         if (firstPersonMovementScript != null)
             firstPersonMovementScript.enabled = true;
+
+        if (momWalker != null)
+            momWalker.StartWalking();
     }
 
     private void SnapPlayerToFloor()
     {
         if (playerTransform == null) return;
 
+        StartCoroutine(SnapPlayerToFloorRoutine());
+    }
+
+    private IEnumerator SnapPlayerToFloorRoutine()
+    {
         CharacterController cc = playerTransform.GetComponent<CharacterController>();
         bool hadController = false;
 
@@ -89,5 +98,11 @@ public class DialogueSceneController : MonoBehaviour
         {
             cc.enabled = hadController;
         }
+
+        yield return null;
+
+        pos = playerTransform.position;
+        pos.y = 0f;
+        playerTransform.position = pos;
     }
 }
