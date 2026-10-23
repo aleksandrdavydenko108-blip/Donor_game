@@ -14,6 +14,7 @@ public class KnifeHandAttacher : MonoBehaviour
         // true = сохраняем текущее мировое положение/поворот/масштаб ножа,
         // просто меняем родителя на кость руки - без скачков и без искажения размера
         knife.SetParent(handBone, true);
+        GameAudio.Play("drawKnife1", 0.6f);
 
         attached = true;
     }

@@ -27,6 +27,7 @@ public class NurseDialogue : MonoBehaviour
     {
         dialogueBox.SetActive(true);
         speakerPortrait.SetActive(true);
+        DialogueSkip.Begin();
         StartCoroutine(PlayLines());
     }
 
@@ -35,17 +36,14 @@ public class NurseDialogue : MonoBehaviour
         foreach (string line in lines)
         {
             dialogueText.text = "";
-            foreach (char c in line)
-            {
-                dialogueText.text += c;
-                yield return new WaitForSeconds(typingSpeed);
-            }
-            yield return new WaitForSeconds(2.5f);
+            yield return DialogueSkip.Type(dialogueText, line, typingSpeed, 1.15f);
+            yield return DialogueSkip.WaitOrSkip(2.5f);
         }
 
         dialogueText.text = "";
         dialogueBox.SetActive(false);
         speakerPortrait.SetActive(false);
+        DialogueSkip.End();
         OnDialogueFinished?.Invoke();
     }
 }

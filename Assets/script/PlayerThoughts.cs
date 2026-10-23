@@ -22,6 +22,7 @@ public class PlayerThoughts : MonoBehaviour
     public void StartThoughts()
     {
         Debug.Log("StartThoughts вызван");
+        DialogueSkip.Begin();
         StartCoroutine(ShowLines());
     }
 
@@ -33,21 +34,17 @@ public class PlayerThoughts : MonoBehaviour
         foreach (string line in lines)
         {
             thoughtText.text = "";
-            foreach (char c in line)
-            {
-                thoughtText.text += c;
-                yield return new WaitForSeconds(0.05f);
-            }
+            yield return DialogueSkip.Type(thoughtText, line, 0.05f, 0.8f);
+            yield return DialogueSkip.WaitOrSkip(2f);
 
-            yield return new WaitForSeconds(2f);
-
-            yield return StartCoroutine(FadeOut());
+            if (!DialogueSkip.SkipAll) yield return StartCoroutine(FadeOut());
             thoughtText.text = "";
         }
 
         thoughtText.gameObject.SetActive(false);
 
         // –еплики закончились Ч вызываем событие
+        DialogueSkip.End();
         OnThoughtsFinished?.Invoke();
     }
 

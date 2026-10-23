@@ -40,6 +40,7 @@ public class SignController : MonoBehaviour
         {
             signButton.SetActive(false);
             StartCoroutine(SignSequence());
+            StartCoroutine(PlaySignatureSounds());
         }
     }
 
@@ -53,13 +54,10 @@ public class SignController : MonoBehaviour
         dialogueText.text = "";
 
         string line = "Хорошо... я подпишу.";
-        foreach (char c in line)
-        {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(0.04f);
-        }
-
-        yield return new WaitForSeconds(2f);
+        DialogueSkip.Begin();
+        yield return DialogueSkip.Type(dialogueText, line, 0.04f);
+        yield return DialogueSkip.WaitOrSkip(2f);
+        DialogueSkip.End();
 
         dialogueBox.SetActive(false);
         speakerPortrait.SetActive(false);
@@ -67,9 +65,23 @@ public class SignController : MonoBehaviour
         // Возвращаем портрет медсестры на случай если нужно
         speakerImage.sprite = nursePortrait;
 
+        StartCoroutine(SceneAudioSetup.FadeOutAll(fadeDuration));
         yield return StartCoroutine(FadeToBlack());
 
         SceneManager.LoadScene(nextScene);
+    }
+
+    IEnumerator PlaySignatureSounds()
+    {
+        GameAudio.Play("bookFlip2", 0.5f);
+        yield return new WaitForSeconds(0.4f);
+
+        string[] scratches = { "scratch_001", "scratch_002", "scratch_003", "scratch_002" };
+        foreach (string s in scratches)
+        {
+            GameAudio.Play(s, 0.45f, Random.Range(0.9f, 1.1f));
+            yield return new WaitForSeconds(Random.Range(0.12f, 0.22f));
+        }
     }
 
     IEnumerator FadeToBlack()

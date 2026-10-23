@@ -22,6 +22,7 @@ public class AttachProps : MonoBehaviour
     IEnumerator AttachAfterDelay()
     {
         yield return new WaitForSeconds(1.25f);
+        GameAudio.Play("bookFlip1", 0.6f);
 
         // Ѕумага в левую руку
         paper.transform.SetParent(leftHand);

@@ -50,6 +50,7 @@ public class DialogueManager : MonoBehaviour
     private int currentLineIndex = -1;
     private bool dialogueActive = false;
     private Coroutine typingCoroutine;
+    private float typingPitch = 1f;
 
     public bool IsDialogueActive => dialogueActive;
 
@@ -96,6 +97,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         dialogueActive = true;
+        DialogueSkip.Begin();
         currentLineIndex = -1;
 
         if (dialoguePanel != null) dialoguePanel.SetActive(true);
@@ -118,6 +120,7 @@ public class DialogueManager : MonoBehaviour
         DialogueLine line = lines[currentLineIndex];
 
         bool isMom = line.speaker == Speaker.Mom;
+        typingPitch = isMom ? 0.9f : 1f;
 
         speakerNameText.text = isMom ? momDisplayName : ggDisplayName;
 
@@ -137,13 +140,8 @@ public class DialogueManager : MonoBehaviour
     {
         dialogueText.text = "";
 
-        foreach (char c in fullText)
-        {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(typingSpeed);
-        }
-
-        yield return new WaitForSeconds(pauseAfterLine);
+        yield return DialogueSkip.Type(dialogueText, fullText, typingSpeed, typingPitch);
+        yield return DialogueSkip.WaitOrSkip(pauseAfterLine);
 
         ShowNextLine();
     }
@@ -151,6 +149,7 @@ public class DialogueManager : MonoBehaviour
     private void EndDialogue()
     {
         dialogueActive = false;
+        DialogueSkip.End();
 
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
         if (portraitImage != null) portraitImage.enabled = false;
@@ -161,6 +160,8 @@ public class DialogueManager : MonoBehaviour
         {
             ggAnimator.applyRootMotion = true;
             ggAnimator.SetTrigger("StandUp");
+            GameAudio.Play("creak1", 0.5f);
+            GameAudio.Play("cloth1", 0.4f);
         }
 
         if (momAnimator != null)
@@ -183,6 +184,7 @@ public class DialogueManager : MonoBehaviour
         if (dialoguePanel != null) dialoguePanel.SetActive(true);
 
         bool isMom = speaker == Speaker.Mom;
+        typingPitch = isMom ? 0.9f : 1f;
         speakerNameText.text = isMom ? momDisplayName : ggDisplayName;
 
         if (portraitImage != null)
@@ -206,13 +208,8 @@ public class DialogueManager : MonoBehaviour
     {
         dialogueText.text = "";
 
-        foreach (char c in fullText)
-        {
-            dialogueText.text += c;
-            yield return new WaitForSeconds(typingSpeed);
-        }
-
-        yield return new WaitForSeconds(duration);
+        yield return DialogueSkip.Type(dialogueText, fullText, typingSpeed, typingPitch);
+        yield return DialogueSkip.WaitOrSkip(duration);
 
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
         if (portraitImage != null) portraitImage.enabled = false;

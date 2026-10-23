@@ -75,6 +75,9 @@ public class KnifePickupInteraction : MonoBehaviour
         if (firstPersonMovementScript != null)
             firstPersonMovementScript.enabled = false;
 
+        // —корость осталась бы от ходьбы Ч обнул€ем, чтобы аниматор не считал, что √√ идЄт
+        if (ggAnimator != null) ggAnimator.SetFloat("Speed", 0f);
+
         if (playerTransform != null)
         {
             CharacterController cc = playerTransform.GetComponent<CharacterController>();
